@@ -22,9 +22,10 @@ class Rock(Entity):
 class Tree(Entity):
     image = ' 🌲 '
 
-a = Rock((1,2))
-b = isinstance(a, Rock)
-print(b)
+
+a = Tree
+
+print(type(a))
 
 
 # d ={(i, j): 0 for i in range(10) for j in range(10)}
