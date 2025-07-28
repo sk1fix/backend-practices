@@ -1,5 +1,6 @@
 import random
 import time
+from typing import Union
 
 import keyboard
 
@@ -17,7 +18,6 @@ class Simulation():
         'harbivore': Harbivore
     }
     count_of_move = 0
-    health = 100
 
     def rendering(self) -> None:
         self.count_of_move += 1
@@ -60,8 +60,12 @@ class Simulation():
         else:
             self.simulation_map[poz] = self.entity_map.get(class_name)(poz)
 
-    def action(self, temp: object, temp_pred: object) -> None:
-        next_step = temp.bfs(temp_pred.image, self.simulation_map)
+    def action(
+        self,
+        temp: Union[Predator, Harbivore],
+        temp_pred: Union[Grass, Harbivore]
+    ) -> None:
+        next_step = temp.bfs(temp_pred, self.simulation_map)
         if next_step is None:
             return
         if temp.check_meal(next_step):

@@ -1,0 +1,2 @@
+Python==3.13.5
+keyboard==0.13.4

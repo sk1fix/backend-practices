@@ -1,11 +1,7 @@
 from collections import deque
 from typing import Optional, List, Tuple, Dict
 
-
-class Point():
-    def __init__(self, x: int, y: int) -> None:
-        self.x = x
-        self.y = y
+from point import Point
 
 
 class Entity():
@@ -69,7 +65,7 @@ class Creature(Entity):
 
     def bfs(
         self,
-        goal: str,
+        goal: Entity,
         graph: Dict[Tuple[int, int], object]
     ) -> Optional[List[Tuple[int, int]]]:
         queue = deque([[self.get_pozition()]])
@@ -84,8 +80,8 @@ class Creature(Entity):
 
             visited.add(node)
 
-            if type(graph[node]) != type(''):
-                if graph[node].image == goal:
+            if graph[node] != ' . ':
+                if graph[node].name == goal.name:
                     return path
             neighbors = self.get_neighbors(node)
 
