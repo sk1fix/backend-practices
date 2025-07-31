@@ -40,12 +40,12 @@ class Creature(Entity):
                   path: Tuple[int, int],
                   sim_map: Dict[Tuple[int, int], object]) -> None:
         sim_map[(path[0], path[1])] = self
-        sim_map[self.get_pozition()] = ' . '
+        del sim_map[self.get_pozition()]
 
         self.pozition.x = path[0]
         self.pozition.y = path[1]
 
-    def check_meal(self, path: Tuple[int, int]) -> bool:
+    def check_meal(self, path: List[Tuple[int, int]]) -> bool:
         if path is None:
             return False
         if path[0] == self.get_pozition() and path[1] == path[-1]:
@@ -80,16 +80,13 @@ class Creature(Entity):
 
             visited.add(node)
 
-            if graph[node] != ' . ':
+            if node in graph:
                 if graph[node].name == goal.name:
                     return path
             neighbors = self.get_neighbors(node)
 
             for neighbor in neighbors:
-                if isinstance(graph[neighbor], (Rock, Tree, Predator)):
-                    continue
-                if self.name == 'predator' and \
-                        isinstance(graph[neighbor], Grass):
+                if neighbor in graph and graph[neighbor].name != goal.name:
                     continue
                 new_path = list(path)
                 new_path.append(neighbor)
