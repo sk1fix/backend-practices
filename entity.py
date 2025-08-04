@@ -1,19 +1,21 @@
 from collections import deque
 from typing import Optional, List, Tuple, Dict
+from abc import abstractmethod, ABC
 
 from point import Point
 
 
-class Entity():
+class Entity(ABC):
 
-    def __init__(self, poz: Tuple[int, int]) -> None:
-        self.pozition = Point(poz[0], poz[1])
+    def __init__(self, pos: Tuple[int, int]) -> None:
+        self.pozition = Point(pos[0], pos[1])
 
     def get_pozition(self) -> Tuple[int, int]:
         return (self.pozition.x, self.pozition.y)
 
-    def make_hit(self, attacker: object) -> None:
-        self.health -= attacker.damage
+    @abstractmethod
+    def make_hit(self) -> None:
+        pass
 
 
 class Grass(Entity):
@@ -21,20 +23,32 @@ class Grass(Entity):
     name = 'grass'
     health = 50
 
+    def make_hit(self, attacker: object) -> None:
+        self.health -= attacker.damage
+
 
 class Rock(Entity):
     image = ' 🪨 '
     name = 'rock'
+
+    def make_hit(self, attacker: object) -> None:
+        pass
 
 
 class Tree(Entity):
     image = ' 🌲 '
     name = 'tree'
 
+    def make_hit(self, attacker: object) -> None:
+        pass
+
 
 class Creature(Entity):
 
     speed = 1
+
+    def make_hit(self, attacker: object) -> None:
+        self.health -= attacker.damage
 
     def make_move(self,
                   path: Tuple[int, int],
@@ -52,21 +66,23 @@ class Creature(Entity):
             return True
         return False
 
-    def get_neighbors(self, poz: Tuple[int, int]) -> List[Tuple[int, int]]:
+    def get_neighbors(self, poz: Tuple[int, int], x: int, y: int) -> List[Tuple[int, int]]:
         my_x, my_y = poz[0], poz[1]
         circle = [[my_x - 1, my_y], [my_x - 1, my_y - 1],
                   [my_x, my_y-1], [my_x + 1, my_y],
                   [my_x, my_y + 1], [my_x + 1, my_y + 1],
                   [my_x + 1, my_y - 1], [my_x - 1, my_y + 1]]
         for i in range(7, -1, -1):
-            if (-1 in circle[i]) or (10 in circle[i]):
+            if (-1 in circle[i]) or circle[i][1] == y or circle[i][0] == x:
                 circle.pop(i)
         return [tuple(i) for i in circle]
 
     def bfs(
         self,
         goal: Entity,
-        graph: Dict[Tuple[int, int], object]
+        graph: Dict[Tuple[int, int], object],
+        x: int,
+        y: int
     ) -> Optional[List[Tuple[int, int]]]:
         queue = deque([[self.get_pozition()]])
         visited = set()
@@ -83,7 +99,7 @@ class Creature(Entity):
             if node in graph:
                 if graph[node].name == goal.name:
                     return path
-            neighbors = self.get_neighbors(node)
+            neighbors = self.get_neighbors(node, x, y)
 
             for neighbor in neighbors:
                 if neighbor in graph and graph[neighbor].name != goal.name:
