@@ -5,11 +5,13 @@ from typing import Union
 import keyboard
 
 from entity import Rock, Grass, Tree, Predator, Harbivore
+from const import (TREE_PERCENTAGE,
+                   STATIC_ENTITY_PERCENTAGE,
+                   HARBIVORE_PERCENTAGE)
 
 
 class Simulation():
     simulation_map = {}
-    count_of_entity = {'grass': 5, 'rock': 5, 'tree': 5}
     entity_map = {
         'grass': Grass,
         'rock': Rock,
@@ -22,19 +24,25 @@ class Simulation():
     def __init__(self):
         self.x_size, self.y_size = map(int, input(
             'Введите размер карты в формате: x y\n').split(' '))
+        square_percentage = int(self.x_size * self.y_size *
+                                STATIC_ENTITY_PERCENTAGE)
+        self.count_of_entity = {'grass': square_percentage,
+                                'rock': square_percentage,
+                                'tree': square_percentage}
         self.harbivore_count = int(input('Введите количество травоядных: '))
         self.predator_count = int(input('Введите количество хищников: '))
         self.count_of_entity['harbivore'] = self.harbivore_count
         self.count_of_entity['predator'] = self.predator_count
+        self.start()
 
     def start(self):
         square = self.x_size * self.y_size
-        if self.predator_count + self.harbivore_count + 15 <= square:
-            self.rendering()
+        if sum(self.simulation_map.values()) <= square:
+            self.start_similation()
         else:
-            while self.predator_count + self.harbivore_count + 15 > square:
+            while sum(self.simulation_map.values()) > square:
                 print(
-                    f'Введите меньшее количество существ, чтобы оно было меньше количества мест {square}')
+                    f'Введите меньшее количество существ')
                 self.harbivore_count, self.predator_count = map(
                     int, input('В формате H P').split(' '))
 
@@ -88,7 +96,10 @@ class Simulation():
         temp: Union[Predator, Harbivore],
         temp_pred: Union[Grass, Harbivore]
     ) -> None:
-        next_step = temp.bfs(temp_pred, self.simulation_map, self.x_size, self.y_size)
+        next_step = temp.bfs(temp_pred,
+                             self.simulation_map,
+                             self.x_size,
+                             self.y_size)
         if next_step is None:
             return
         if temp.check_meal(next_step):
@@ -104,10 +115,10 @@ class Simulation():
         count_pos = self.x_size * self.y_size - len(self.simulation_map)
         if not count_pos:
             return
-        if self.count_of_move % 3 == 0 and count_pos >= 1:
+        if self.count_of_move % HARBIVORE_PERCENTAGE == 0 and count_pos >= 1:
             self.new_item('harbivore')
             count_pos -= 1
-        if self.count_of_move % 10 == 0 and count_pos >= 2:
+        if self.count_of_move % TREE_PERCENTAGE == 0 and count_pos >= 2:
             self.new_item('tree')
             self.new_item('predator')
             count_pos -= 2
@@ -147,7 +158,7 @@ class Simulation():
     def print_map(self) -> None:
         for i in range(self.x_size):
             for j in range(self.y_size):
-                if (i, j) in self.simulation_map:
+                if (i, j) in self.simulation_map.keys():
                     print(self.simulation_map[(i, j)].image, end='')
                 else:
                     print(' . ', end='')
