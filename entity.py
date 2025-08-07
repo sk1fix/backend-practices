@@ -66,10 +66,7 @@ class Creature(Entity):
                   [my_x, my_y-1], [my_x + 1, my_y],
                   [my_x, my_y + 1], [my_x + 1, my_y + 1],
                   [my_x + 1, my_y - 1], [my_x - 1, my_y + 1]]
-        for i in range(7, -1, -1):
-            if (-1 in circle[i]) or circle[i][1] == y or circle[i][0] == x:
-                circle.pop(i)
-        return [tuple(i) for i in circle]
+        return [(i, j) for i, j in circle if 0 <= i < x and 0 <= j < y]
 
     def bfs(
         self,

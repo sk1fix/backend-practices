@@ -5,9 +5,9 @@ from typing import Union
 import keyboard
 
 from entity import Rock, Grass, Tree, Predator, Harbivore
-from const import (TREE_PERCENTAGE,
+from const import (SPAWN_PERIOD_TREE_PREDATOR,
                    STATIC_ENTITY_PERCENTAGE,
-                   HARBIVORE_PERCENTAGE)
+                   SPAWN_PERIOD_HARBIVORE)
 
 
 class Simulation():
@@ -37,7 +37,7 @@ class Simulation():
 
     def start(self):
         square = self.x_size * self.y_size
-        if sum(self.simulation_map.values()) <= square:
+        if sum(self.count_of_entity.values()) <= square:
             self.start_similation()
         else:
             while sum(self.simulation_map.values()) > square:
@@ -55,14 +55,15 @@ class Simulation():
                 self.simulation_map[position] = entity_class(position)
 
     def get_random_position(self):
-        a = random.randint(0, self.x_size)
-        b = random.randint(0, self.y_size)
-        if len(self.simulation_map) == self.x_size*self.y_size:
+        free_positions = [
+            (i, j)
+            for i in range(self.x_size)
+            for j in range(self.y_size)
+            if (i, j) not in self.simulation_map
+        ]
+        if not free_positions:
             return None
-        elif (a, b) in self.simulation_map:
-            return self.get_random_position()
-        else:
-            return (a, b)
+        return random.choice(free_positions)
 
     def next_turn(self) -> None:
         if self.count_of_move == 0:
@@ -70,7 +71,7 @@ class Simulation():
         self.check_fullness()
         positions = list(self.simulation_map.keys())
         for i in positions:
-            if i not in self.simulation_map:
+            if i not in self.simulation_map.keys():
                 continue
             temp = self.simulation_map[i]
             if isinstance(temp, Harbivore):
@@ -86,9 +87,7 @@ class Simulation():
 
     def new_item(self, class_name: str) -> None:
         pos = self.get_random_position()
-        if not pos:
-            return None
-        else:
+        if pos:
             self.simulation_map[pos] = self.entity_map.get(class_name)(pos)
 
     def action(
@@ -115,10 +114,12 @@ class Simulation():
         count_pos = self.x_size * self.y_size - len(self.simulation_map)
         if not count_pos:
             return
-        if self.count_of_move % HARBIVORE_PERCENTAGE == 0 and count_pos >= 1:
+        if self.count_of_move % SPAWN_PERIOD_HARBIVORE == 0\
+                and count_pos >= 1:
             self.new_item('harbivore')
             count_pos -= 1
-        if self.count_of_move % TREE_PERCENTAGE == 0 and count_pos >= 2:
+        if self.count_of_move % SPAWN_PERIOD_TREE_PREDATOR == 0\
+                and count_pos >= 2:
             self.new_item('tree')
             self.new_item('predator')
             count_pos -= 2
@@ -149,7 +150,7 @@ class Simulation():
                 print('\nСимуляция завершена')
                 return None
             free_positions = self.x_size * \
-                self.y_size - len(self.simulation_map)
+                self.y_size - len(self.simulation_map.keys())
 
             if not free_positions:
                 print("Мест нет")
