@@ -7,7 +7,8 @@ import keyboard
 from entity import Rock, Grass, Tree, Predator, Harbivore
 from const import (SPAWN_PERIOD_TREE_PREDATOR,
                    STATIC_ENTITY_PERCENTAGE,
-                   SPAWN_PERIOD_HARBIVORE)
+                   SPAWN_PERIOD_HARBIVORE,
+                   MIN_PREYS)
 
 
 class Simulation():
@@ -124,7 +125,7 @@ class Simulation():
             self.new_item('predator')
             count_pos -= 2
         for i in self.count_of_entity:
-            if self.count_of_entity[i] < 2 and count_pos >= 1:
+            if self.count_of_entity[i] < MIN_PREYS and count_pos >= 1:
                 self.new_item(i)
                 count_pos -= 1
 
