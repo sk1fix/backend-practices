@@ -13,8 +13,12 @@ class ReadExchangeRateDTO(BaseModel):
     updated_at: datetime
 
 
-class CreateUpdateExchangeRateDTO(BaseModel):
+class CreateExchangeRateDTO(BaseModel):
     base_currency_code: str
     target_currency_code: str
+    rate: Decimal
+    source: str
+
+class UpdateExchangeRateDTO(BaseModel):
     rate: Decimal
     source: str
