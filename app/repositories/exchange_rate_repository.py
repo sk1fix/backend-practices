@@ -15,11 +15,11 @@ class CurrencyRepository:
         async with self.session as session:
             query = (
                 select(
-                ExchangeRates, BaseCurrency.code, TargetCurrency.code
+                    ExchangeRates, BaseCurrency.code, TargetCurrency.code
                 )
                 .join(BaseCurrency, BaseCurrency.id == ExchangeRates.base_currency_id)
                 .join(
-                TargetCurrency, TargetCurrency.id == ExchangeRates.target_currency_id)
+                    TargetCurrency, TargetCurrency.id == ExchangeRates.target_currency_id)
             )
             result = await session.execute(query)
 
@@ -31,16 +31,16 @@ class CurrencyRepository:
         async with self.session as session:
             query = (
                 select(
-                ExchangeRates, BaseCurrency.code, TargetCurrency.code
+                    ExchangeRates, BaseCurrency.code, TargetCurrency.code
                 )
                 .join(BaseCurrency, BaseCurrency.id == ExchangeRates.base_currency_id)
                 .join(
-                TargetCurrency, TargetCurrency.id == ExchangeRates.target_currency_id)
+                    TargetCurrency, TargetCurrency.id == ExchangeRates.target_currency_id)
                 .where(pair[:3] == BaseCurrency.code, pair[3:] == TargetCurrency.code)
             )
             result = await session.execute(query)
 
-            return result.all()
+            return result.first()
 
     async def create_exchange_rates(self, data):
         async with self.session as session:
@@ -49,7 +49,22 @@ class CurrencyRepository:
             await session.commit()
             await session.refresh(exchange_rate)
 
-            return exchange_rate
+            BaseCurrency = aliased(Currencies)
+            TargetCurrency = aliased(Currencies)
+
+            query = (
+                select(
+                    ExchangeRates,
+                    BaseCurrency.code,
+                    TargetCurrency.code,
+                )
+                .join(BaseCurrency, BaseCurrency.id == ExchangeRates.base_currency_id)
+                .join(TargetCurrency, TargetCurrency.id == ExchangeRates.target_currency_id)
+                .where(ExchangeRates.id == exchange_rate.id)
+            )
+            result = await session.execute(query)
+            row = result.first()
+            return row
 
     async def update_exchange_rate(self, pair: str, data):
         BaseCurrency = aliased(Currencies)
@@ -66,10 +81,11 @@ class CurrencyRepository:
                 )
             )
             result = await session.execute(stmt)
-            exchange_rate = result.scalars().first()
+            exchange_rate: ExchangeRates | None = result.scalars().first()
 
             if exchange_rate is None:
-                return False  
+                return None
+
             data_dict = data.model_dump(exclude_unset=True)
             for field, value in data_dict.items():
                 setattr(exchange_rate, field, value)
@@ -77,7 +93,7 @@ class CurrencyRepository:
             await session.commit()
             await session.refresh(exchange_rate)
 
-            return True
+            return exchange_rate
 
     async def delete_exchange_rates(self, id):
         async with self.session as session:

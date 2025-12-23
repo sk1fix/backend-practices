@@ -20,7 +20,7 @@ class CurrencyRepository:
             query = select(Currencies).where(code == Currencies.code)
             result = await session.execute(query)
 
-            return result.scalars().all()
+            return result.scalars().first()
 
     async def create_currency(self, data):
         async with self.session as session:
