@@ -2,10 +2,10 @@ from sqlalchemy import select, delete, update
 from sqlalchemy.orm import Session, aliased
 
 from models.models import ExchangeRates, Currencies
-from schemas.currency import CreateExchangeRateDTO
+from schemas.exchange_rate import CreateExchangeRateDTO
 
 
-class CurrencyRepository:
+class ExchangeRateRepository:
     def __init__(self, session) -> None:
         self.session = session
 

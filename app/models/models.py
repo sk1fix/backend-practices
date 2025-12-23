@@ -28,9 +28,9 @@ class ExchangeRates(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     base_currency_id: Mapped[int] = mapped_column(
-        ForeignKey("currencies.id"), ondelete="CASCADE")
+        ForeignKey("currencies.id", ondelete="CASCADE"))
     target_currency_id: Mapped[int] = mapped_column(
-        ForeignKey("currencies.id"), ondelete="CASCADE")
+        ForeignKey("currencies.id", ondelete="CASCADE"))
     rate: Mapped[Decimal] = mapped_column(Numeric(18, 6))
     source: Mapped[str] = mapped_column(String)
     updated_at: Mapped[datetime] = mapped_column(
