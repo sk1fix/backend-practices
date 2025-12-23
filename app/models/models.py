@@ -3,10 +3,7 @@ from decimal import Decimal
 
 from sqlalchemy import ForeignKey, String, Boolean, DateTime, Numeric
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-
-
-class Base(DeclarativeBase):
-    pass
+from database.base import Base
 
 
 class Currencies(Base):

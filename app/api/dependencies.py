@@ -17,6 +17,6 @@ async def get_currency_service(db: AsyncSession = Depends(get_db)) -> CurrencySe
     repo = CurrencyRepository(db)
     return CurrencyService(repo)
 
-async def get_currency_service(db: AsyncSession = Depends(get_db)) -> ExchangeRateService:
+async def get_exchange_rate_service(db: AsyncSession = Depends(get_db)) -> ExchangeRateService:
     repo = ExchangeRateRepository(db)
     return ExchangeRateService(repo)
