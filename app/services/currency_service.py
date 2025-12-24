@@ -25,8 +25,7 @@ class CurrencyService:
 
     async def update(self, id, data):
         result = await self.repo.update_currency(id, data)
-        dto = map_orm_to_dto(result)
-        return dto
+        return result
 
     async def delete(self, id):
         result = await self.repo.delete_currency(id)
