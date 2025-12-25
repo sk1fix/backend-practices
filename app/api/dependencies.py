@@ -6,6 +6,7 @@ from repositories.currency_repository import CurrencyRepository
 from repositories.exchange_rate_repository import ExchangeRateRepository
 from services.currency_service import CurrencyService
 from services.exchange_service import ExchangeRateService
+from services.currency_conversion import CurrencyConversionService
 
 async def get_currency_repository(session: AsyncSession = Depends(get_db)):
     return CurrencyRepository(session)
@@ -20,3 +21,7 @@ async def get_currency_service(db: AsyncSession = Depends(get_db)) -> CurrencySe
 async def get_exchange_rate_service(db: AsyncSession = Depends(get_db)) -> ExchangeRateService:
     repo = ExchangeRateRepository(db)
     return ExchangeRateService(repo)
+
+async def get_conversion_service(db: AsyncSession = Depends(get_db)) -> CurrencyConversionService:
+    repo = ExchangeRateRepository(db)
+    return CurrencyConversionService(repo)

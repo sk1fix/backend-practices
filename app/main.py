@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from api.controllers.currencies import currencies_route
 from api.controllers.exchange_rates import exchange_rates_route
+from api.controllers.conversion import conversion_route
 from core.config import settings
 from core.logging import logger
 
@@ -17,6 +18,7 @@ currency_app = FastAPI(lifespan=lifespan)
 
 currency_app.include_router(currencies_route)
 currency_app.include_router(exchange_rates_route)
+currency_app.include_router(conversion_route)
 
 if __name__ == "__main__":
     uvicorn.run(
