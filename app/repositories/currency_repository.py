@@ -15,14 +15,14 @@ class CurrencyRepository:
 
             return result.scalars().all()
 
-    async def get_currency_by_code(self, code):
+    async def get_currency_by_code(self, code) -> Currencies:
         async with self.session as session:
             query = select(Currencies).where(code == Currencies.code)
             result = await session.execute(query)
 
             return result.scalars().first()
 
-    async def create_currency(self, data):
+    async def create_currency(self, data) -> Currencies:
         async with self.session as session:
             currency = Currencies(**data.model_dump())
             session.add(currency)
@@ -31,7 +31,7 @@ class CurrencyRepository:
 
             return currency
 
-    async def update_currency(self, id, data):
+    async def update_currency(self, id, data) -> bool:
         async with self.session as session:
             query = update(Currencies).where(
                 id == Currencies.id).values(**data.model_dump())
@@ -40,7 +40,7 @@ class CurrencyRepository:
 
             return True
 
-    async def delete_currency(self, id):
+    async def delete_currency(self, id) -> bool:
         async with self.session as session:
             query = delete(Currencies).where(id == Currencies.id)
             await session.execute(query)

@@ -1,15 +1,23 @@
 from mappers.conversion_mapper import map_orm_to_dto
+from schemas.conversion import CurrencyConversionDto
 
 
 class CurrencyConversionService:
     def __init__(self, repo):
         self.repo = repo
 
-    async def currency_converter(self, base, target, amount):
+    async def currency_converter(self,
+                                 base: str,
+                                 target: str,
+                                 amount: float
+                                 ) -> CurrencyConversionDto | None:
         result = await self.repo.get_exchange_rates_by_pair(base+target)
         if result:
             converted = amount * float(result[0].rate)
-            return map_orm_to_dto(base+target, result[0].rate, amount, converted)
+            return map_orm_to_dto(base+target,
+                                  result[0].rate,
+                                  amount,
+                                  converted)
 
         result = await self.repo.get_exchange_rates_by_pair(target+base)
         if result:

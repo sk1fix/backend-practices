@@ -19,6 +19,7 @@ class CreateExchangeRateDTO(BaseModel):
     rate: Decimal
     source: str
 
+
 class UpdateExchangeRateDTO(BaseModel):
     rate: Decimal
     source: str

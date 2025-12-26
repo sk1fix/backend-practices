@@ -1,7 +1,7 @@
 from schemas.exchange_rate import ReadExchangeRateDTO
 
 
-def map_orm_to_dto(entity):
+def map_orm_to_dto(entity) -> ReadExchangeRateDTO:
     dto = ReadExchangeRateDTO(
         id=entity.id,
         base_currency_id=entity.base_currency_id,

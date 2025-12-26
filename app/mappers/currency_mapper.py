@@ -1,7 +1,7 @@
 from schemas.currency import ReadCurrencyDTO
 
 
-def map_orm_to_dto(entity):
+def map_orm_to_dto(entity) -> ReadCurrencyDTO:
     dto = ReadCurrencyDTO(
         id=entity.id,
         code=entity.code,

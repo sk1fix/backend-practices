@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from database.base import Base 
+from database.base import Base
 from core.config import settings
 from models.models import Currencies, ExchangeRates
 
@@ -13,7 +13,8 @@ from models.models import Currencies, ExchangeRates
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option("sqlalchemy.url", settings.DB_URL + "?async_fallback=True")
+config.set_main_option(
+    "sqlalchemy.url", settings.DB_URL + "?async_fallback=True")
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:

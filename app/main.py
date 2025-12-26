@@ -8,10 +8,11 @@ from api.controllers.conversion import conversion_route
 from core.config import settings
 from core.logging import logger
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("CurrencyAPI turned on")
-    yield 
+    yield
     logger.info("CurrencyAPI turned down")
 
 currency_app = FastAPI(lifespan=lifespan)
