@@ -1,0 +1,23 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5050:5050"
+    environment:
+      - host=0.0.0.0
+    env_file:
+      - .env
+    depends_on:
+      - db
+    command: >
+      bash -c "cd /backend-practices/app && alembic upgrade head && python main.py"
+  db:
+    image: postgres:latest
+    container_name: currency
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${POSTGRES_PORT}:5432"
