@@ -47,15 +47,15 @@ async def get_exchange_rate_by_code(
 
 
 @exchange_rates_route.patch(
-    "/exchange_rates/{code}",
+    "/exchange_rates/{exchange_rate_code}",
     summary="Update exchange rate",
     tags=["Exchange rates Endpoints"])
 async def update_exchange_rate(
-    code: str,
+    exchange_rate_code: str,
     data: UpdateExchangeRateDTO,
     service: ExchangeRateService = Depends(get_exchange_rate_service)
 ) -> ReadExchangeRateDTO | None:
-    result = await service.update(code, data)
+    result = await service.update(exchange_rate_code, data)
     return result
 
 

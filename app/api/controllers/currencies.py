@@ -41,14 +41,14 @@ async def get_currency_by_code(
     return result
 
 
-@currencies_route.patch("/currencies/{id}",
+@currencies_route.patch("/currencies/{currency_id}",
                         summary="Update currency",
                         tags=["Currencies Endpoints"])
 async def update_currency(
-        id: int,
+        currency_id: int,
         data: CreateUpdateCurrencyDTO,
         service: CurrencyService = Depends(get_currency_service)) -> bool:
-    result = await service.update(id, data)
+    result = await service.update(currency_id, data)
     return result
 
 
