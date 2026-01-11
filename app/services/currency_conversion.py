@@ -6,18 +6,21 @@ class CurrencyConversionService:
     def __init__(self, repo):
         self.repo = repo
 
-    async def currency_converter(self,
-                                 base: str,
-                                 target: str,
-                                 amount: float
-                                 ) -> CurrencyConversionDto | None:
+    async def currency_converter(
+        self,
+        base: str,
+        target: str,
+        amount: float
+    ) -> CurrencyConversionDto | None:
         result = await self.repo.get_exchange_rates_by_pair(base+target)
         if result:
             converted = amount * float(result[0].rate)
-            return map_orm_to_dto(base+target,
-                                  result[0].rate,
-                                  amount,
-                                  converted)
+            return map_orm_to_dto(
+                base+target,
+                result[0].rate,
+                amount,
+                converted
+            )
 
         result = await self.repo.get_exchange_rates_by_pair(target+base)
         if result:
@@ -32,5 +35,4 @@ class CurrencyConversionService:
             converted = amount * new_rate
             return map_orm_to_dto(base+target, new_rate, amount, converted)
 
-        else:
-            return None
+        return None
