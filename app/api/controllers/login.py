@@ -1,7 +1,11 @@
 from fastapi import Depends, APIRouter
 
-app = APIRouter(tags=["Auth route"])
+from dependencies import get_auth_service
+from services.auth import AuthService
 
-@app.post('/auth/register', summary="Register route", tags=["Auth route"])
-def register():
-    pass
+auth = APIRouter(tags=["Auth route"])
+
+@auth.post('/auth/register', summary="Register route", tags=["Auth route"])
+async def register(data: str, service: AuthService = Depends(get_auth_service)) -> str:
+    result = await service.register_user(data)
+    return result
