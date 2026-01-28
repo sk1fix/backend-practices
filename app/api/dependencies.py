@@ -12,7 +12,6 @@ async def get_auth_repository(
     return AuthRepository(session)
 
 async def get_auth_service(
-        db: AsyncSession = Depends(get_db)
+        repo: AsyncSession = Depends(get_auth_repository)
 ) -> AuthService:
-    repo = AuthRepository(db)
     return AuthService(repo)
