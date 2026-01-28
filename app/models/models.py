@@ -16,7 +16,7 @@ class Users(Base):
     used_storage: Mapped[int] = mapped_column(BigInteger, default=0)
     storage_quota_bytes: Mapped[int] = mapped_column(
         BigInteger, 
-        default=15 * 1024 * 1024 * 1024
+        default=15 * 1024 ** 3
     )
     create_date: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow)
