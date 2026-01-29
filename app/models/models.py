@@ -47,6 +47,6 @@ class Folders(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     name: Mapped[str]
     full_path: Mapped[str]
-    parent_folder_id: Mapped[int] | None = mapped_column(ForeignKey("folders.id", ondelete="CASCADE"), nullable=True)
+    parent_folder_id: Mapped[int | None] = mapped_column(ForeignKey("folders.id", ondelete="CASCADE"), nullable=True)
     create_date: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow)
