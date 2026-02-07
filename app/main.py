@@ -6,7 +6,6 @@ from api.controllers.login import auth
 from core.config import settings
 
 
-
 cloud_app = FastAPI()
 
 cloud_app.include_router(auth)

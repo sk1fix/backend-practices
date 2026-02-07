@@ -15,18 +15,19 @@ class Users(Base):
     username: Mapped[str]
     used_storage: Mapped[int] = mapped_column(BigInteger, default=0)
     storage_quota_bytes: Mapped[int] = mapped_column(
-        BigInteger, 
-        default=15 * 1024 ** 3
+        BigInteger,
+        default=2 * 1024 ** 3
     )
     create_date: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow)
-    
+
 
 class Files(Base):
     __tablename__ = "files"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"))
     filename: Mapped[str]
     filepath: Mapped[str]
     storage_key: Mapped[str]
@@ -40,13 +41,16 @@ class Files(Base):
         onupdate=datetime.utcnow,
     )
 
+
 class Folders(Base):
     __tablename__ = "folders"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"))
     name: Mapped[str]
     full_path: Mapped[str]
-    parent_folder_id: Mapped[int | None] = mapped_column(ForeignKey("folders.id", ondelete="CASCADE"), nullable=True)
+    parent_folder_id: Mapped[int | None] = mapped_column(
+        ForeignKey("folders.id", ondelete="CASCADE"), nullable=True)
     create_date: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow)

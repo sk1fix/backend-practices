@@ -2,8 +2,5 @@ from database.base import session
 
 
 async def get_db():
-    db = session()
-    try:
+    async with session() as db:
         yield db
-    finally:
-        await db.close()

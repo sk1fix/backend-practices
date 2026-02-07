@@ -1,25 +1,20 @@
 from pydantic import BaseModel
 
 
-class UsersRegisterDto(BaseModel):
+class UserRegisterDto(BaseModel):
     login: str
     hashed_password: str
     username: str
 
 
-class UsersLoginDto(BaseModel):
+class UserLoginDto(BaseModel):
     login: str
     password: str
 
 
-class UserHashPass(BaseModel):
-    hashed_password: str
-
-
-class UserInfoDto(BaseModel):
-    username: str
-    used_storage_bytes: int
-    storage_quota_bytes: int
+class UserResponseDto(BaseModel):
+    login: str
+    fullname: str
 
 
 class Token(BaseModel):
