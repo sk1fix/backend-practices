@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     SPA_DIR: str = "web/dist"
     CORS_ORIGINS: str = ""
+    # Внешний префикс пути, под которым приложение отдаётся прокси
+    # (nginx снимает его перед передачей в контейнер). '/' или пусто — корень.
+    ROOT_PATH: str = ""
 
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
@@ -60,6 +63,12 @@ class Settings(BaseSettings):
     def spa_path(self) -> Path:
         path = Path(self.SPA_DIR)
         return path if path.is_absolute() else PROJECT_DIR / path
+
+    @property
+    def root_path(self) -> str:
+        """Нормализованный префикс: '/cloud-storage' или '' для корня."""
+        stripped = self.ROOT_PATH.strip("/")
+        return f"/{stripped}" if stripped else ""
 
     @property
     def cors_origins(self) -> list[str]:

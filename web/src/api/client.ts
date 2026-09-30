@@ -7,8 +7,19 @@
  *  - любой ответ 401 (кроме страницы входа) переводит пользователя на `/login`.
  */
 
-const API_PREFIX = '/api';
-const LOGIN_PATH = '/login';
+/**
+ * Базовый путь приложения: '' при отдаче с корня домена (base '/') и
+ * '/cloud-storage' при отдаче из подкаталога — задаётся сборкой (VITE_BASE_PATH).
+ */
+const API_BASE = import.meta.env.BASE_URL.replace(/\/+$/, '');
+
+const API_PREFIX = `${API_BASE}/api`;
+const LOGIN_PATH = `${API_BASE}/login`;
+
+/** Путь к ручке API с учётом базового пути приложения. */
+export function apiUrl(path: string): string {
+  return `${API_PREFIX}${path}`;
+}
 
 /** Ошибка запроса к API: HTTP-статус плюс готовое для показа сообщение. */
 export class ApiError extends Error {

@@ -1,6 +1,9 @@
 # --- Этап 1: сборка SPA ---
 FROM node:24-alpine AS web-build
 
+# Базовый путь сборки: '/' или '/cloud-storage/' (должен совпадать с ROOT_PATH)
+ARG VITE_BASE_PATH=/
+
 WORKDIR /web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci

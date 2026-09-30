@@ -47,6 +47,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        # Внешний префикс SPA; должен совпадать с ROOT_PATH и location в nginx
+        VITE_BASE_PATH: ${VITE_BASE_PATH:-/}
     restart: unless-stopped
     env_file:
       - .env

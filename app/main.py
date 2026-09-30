@@ -38,6 +38,7 @@ cloud_app = FastAPI(
     title="Cloud Storage",
     version="1.0.0",
     lifespan=lifespan,
+    root_path=settings.root_path,
     docs_url=f"{API_PREFIX}/docs",
     redoc_url=None,
     openapi_url=f"{API_PREFIX}/openapi.json",

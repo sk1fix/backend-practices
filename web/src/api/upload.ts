@@ -1,4 +1,4 @@
-import { ApiError, buildApiError, redirectToLogin } from './client';
+import { ApiError, apiUrl, buildApiError, redirectToLogin } from './client';
 import type { StoredFile } from '../types';
 
 export interface UploadFileOptions {
@@ -28,7 +28,9 @@ export function uploadFile(options: UploadFileOptions): Promise<StoredFile> {
       form.append('folder_id', String(folderId));
     }
 
-    const url = overwrite ? '/api/files/upload?overwrite=true' : '/api/files/upload';
+    // Путь считается от базового пути приложения (VITE_BASE_PATH), иначе при
+    // отдаче из подкаталога запрос уходит в корень домена и nginx отдаёт 404.
+    const url = apiUrl(overwrite ? '/files/upload?overwrite=true' : '/files/upload');
     const xhr = new XMLHttpRequest();
     xhr.open('POST', url, true);
     xhr.withCredentials = true;

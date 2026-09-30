@@ -1,4 +1,4 @@
-import { request } from './client';
+import { apiUrl, request } from './client';
 import type { StoredFile } from '../types';
 
 /** PATCH /api/files/{id} — переименование файла. */
@@ -16,5 +16,5 @@ export function deleteFile(id: number): Promise<void> {
  * Cookie уходит автоматически, поэтому скачивание делается обычной ссылкой `<a href>`.
  */
 export function downloadFileUrl(id: number): string {
-  return `/api/files/${id}/download`;
+  return apiUrl(`/files/${id}/download`);
 }
