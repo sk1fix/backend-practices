@@ -1,26 +1,67 @@
-from fastapi import Depends, APIRouter, Response
+from fastapi import APIRouter, Depends, Response, status
 
-from api.dependencies import get_auth_service
+from api.dependencies import (
+    ACCESS_TOKEN_COOKIE,
+    get_auth_service,
+    get_current_user
+)
+from core.config import settings
+from models.models import Users
+from schemas.auth import (
+    UserLoginDto,
+    UserProfileDto,
+    UserRegisterDto,
+    UserResponseDto
+)
 from services.auth import AuthService
-from schemas.auth import UsersRegisterDto, UsersLoginDto, Token
 
-auth = APIRouter(tags=["Auth route"])
-
-
-@auth.post('/auth/register', summary="Register route", tags=["Auth route"])
-async def register(data: UsersRegisterDto, service: AuthService = Depends(get_auth_service)) -> UsersRegisterDto:
-    result = await service.register_user(data)
-    return result
+auth = APIRouter(prefix="/auth", tags=["Auth route"])
 
 
-@auth.post('/auth/login', summary="Login route", tags=["Auth route"])
-async def login(response: Response, data: UsersLoginDto, service: AuthService = Depends(get_auth_service)) -> bool:
-    result = await service.login_user(data)
+def _set_auth_cookie(response: Response, token: str) -> None:
     response.set_cookie(
-        key="access_token",
-        value=result.access_token,
+        key=ACCESS_TOKEN_COOKIE,
+        value=token,
         httponly=True,
-        max_age=48 * 60 * 60,
-        path="/"
+        secure=settings.COOKIE_SECURE,
+        samesite=settings.COOKIE_SAMESITE,
+        max_age=settings.access_token_expire_seconds,
+        path="/",
     )
-    return True
+
+
+@auth.post(
+    "/register",
+    summary="Регистрация",
+    status_code=status.HTTP_201_CREATED,
+)
+async def register(
+        data: UserRegisterDto,
+        service: AuthService = Depends(get_auth_service),
+) -> UserResponseDto:
+    return await service.register_user(data)
+
+
+@auth.post("/login", summary="Вход")
+async def login(
+        response: Response,
+        data: UserLoginDto,
+        service: AuthService = Depends(get_auth_service),
+) -> UserResponseDto:
+    user, token = await service.login_user(data)
+    _set_auth_cookie(response, token)
+    return user
+
+
+@auth.post(
+    "/logout",
+    summary="Выход",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def logout(response: Response) -> None:
+    response.delete_cookie(key=ACCESS_TOKEN_COOKIE, path="/")
+
+
+@auth.get("/me", summary="Текущий пользователь")
+async def me(user: Users = Depends(get_current_user)) -> UserProfileDto:
+    return AuthService.get_profile(user)

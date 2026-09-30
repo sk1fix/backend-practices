@@ -1,4 +1,11 @@
 venv/
+.venv/
 __pycache__/
+*.pyc
 .vscode/
 .env
+logs/
+data/
+.verify/
+web/node_modules/
+web/dist/

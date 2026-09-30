@@ -1,55 +1,48 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import jwt
-from jose import JWTError
-from passlib.context import CryptContext
+from argon2 import PasswordHasher
+from argon2.exceptions import (
+    InvalidHashError,
+    VerificationError,
+    VerifyMismatchError
+)
 
 from core.config import settings
 from core.exceptions import InvalidTokenException
 
+ALGORITHM = "HS256"
 
-pwd_context = CryptContext(
-    schemes=["argon2"],
-    deprecated="auto"
-)
+password_hasher = PasswordHasher()
 
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    return password_hasher.hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        return password_hasher.verify(hashed_password, plain_password)
+    except (VerifyMismatchError, VerificationError, InvalidHashError):
+        return False
 
 
 def create_token(data: dict) -> str:
+    now = datetime.now(timezone.utc)
     payload = {
         **data,
-        "exp": datetime.utcnow() + timedelta(hours=48),
-        "iat": datetime.utcnow()
+        "iat": now,
+        "exp": now + timedelta(hours=settings.ACCESS_TOKEN_EXPIRE_HOURS),
     }
 
-    return jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=ALGORITHM)
 
 
-def get_user_data_from_token(token: str) -> dict:
+def decode_token(token: str) -> dict:
+    """Расшифровывает токен, поднимая InvalidTokenException при любой ошибке."""
     try:
-        payload = jwt.decode(
-            token,
-            settings.SECRET_KEY,
-            algorithms=["HS256"]
-        )
-
-        exp_timestamp = payload.get("exp")
-        exp_datetime = datetime.fromtimestamp(exp_timestamp)
-        if datetime.utcnow() > exp_datetime:
-            raise InvalidTokenException("Срок действия токена истек")
-
-        return {
-            "user_id": payload.get("user_id"),
-            "username": payload.get("username"),
-            "login": payload.get("sub"),
-            "is_admin": payload.get("is_admin", False)
-        }
-    except JWTError:
-        return None
+        return jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+    except jwt.ExpiredSignatureError:
+        raise InvalidTokenException("Срок действия токена истек")
+    except jwt.PyJWTError:
+        raise InvalidTokenException()
