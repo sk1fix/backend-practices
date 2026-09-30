@@ -1,17 +1,39 @@
-# MinIO OSS: бинарники больше не раздаются с dl.min.io (410 Gone) и образ
-# minio/minio удалён из Docker Hub, поэтому образ собирается из последнего
-# опубликованного OSS-релиза на GitHub.
+# MinIO OSS: бинарники больше не раздаются с dl.min.io (410 Gone), а образ
+# minio/minio удалён из Docker Hub — поэтому образ собирается из последнего
+# опубликованного OSS-релиза (RELEASE.2025-09-07T16-13-09Z, ~106 МиБ).
+#
+# Если канал до GitHub медленный, есть два быстрых пути:
+#   1) своё зеркало:
+#      docker compose build --build-arg MINIO_BASE_URL=https://<зеркало>/download minio
+#   2) собрать образ там, где канал быстрый, и перенести готовый образ:
+#      docker save cloud-storage-minio | gzip | ssh <сервер> 'gunzip | docker load'
 FROM alpine:3.21
 
 ARG MINIO_RELEASE=RELEASE.2025-09-07T16-13-09Z
 ARG TARGETARCH=amd64
+ARG MINIO_BASE_URL=https://github.com/minio/minio/releases/download
 
-RUN apk add --no-cache ca-certificates curl \
- && curl -fsSL -o /usr/local/bin/minio \
-      "https://github.com/minio/minio/releases/download/${MINIO_RELEASE}/minio.linux-${TARGETARCH}.${MINIO_RELEASE}" \
- && chmod +x /usr/local/bin/minio \
- && mkdir -p /data \
- && /usr/local/bin/minio --version
+RUN set -eux; \
+    apk add --no-cache ca-certificates curl; \
+    url="${MINIO_BASE_URL}/${MINIO_RELEASE}/minio.linux-${TARGETARCH}.${MINIO_RELEASE}"; \
+    echo "Скачиваю ${url}"; \
+    curl -fL --retry 10 --retry-delay 5 --retry-all-errors \
+        --connect-timeout 20 --max-time 3600 --progress-bar \
+        -o /tmp/minio "${url}"; \
+    echo "Проверяю контрольную сумму"; \
+    curl -fsSL --retry 10 --retry-delay 5 --retry-all-errors \
+        --connect-timeout 20 --max-time 120 \
+        -o /tmp/minio.sha256 "${url}.sha256sum"; \
+    expected="$(awk '{print $1}' /tmp/minio.sha256)"; \
+    actual="$(sha256sum /tmp/minio | awk '{print $1}')"; \
+    if [ "${expected}" != "${actual}" ]; then \
+        echo "Контрольная сумма не совпала: ожидалось ${expected}, получено ${actual}" >&2; \
+        exit 1; \
+    fi; \
+    install -m 0755 /tmp/minio /usr/local/bin/minio; \
+    rm -f /tmp/minio /tmp/minio.sha256; \
+    mkdir -p /data; \
+    /usr/local/bin/minio --version
 
 EXPOSE 9000 9001
 
